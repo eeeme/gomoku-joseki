@@ -1,15 +1,16 @@
 # CLAUDE.md
 
-五目定石帳（連珠の定石学習PWA）。React + TypeScript + Vite、IndexedDB（idb-keyval）、バックエンドなし。GitHub Pages で公開。
+五目定石帳（連珠の定石を分岐ツリーで覚える PWA）。リバーシ版 `eeeme/reversi-joseki`・将棋版 `eeeme/shogi-zyoseki` と同じ構成（React + TypeScript + Vite、IndexedDB、Capacitor）。設計は `docs/design.md`。
 
 ## 運用ルール
 - main に直接コミットして push する（push で GitHub Actions がテスト → Pages へデプロイ）
 - コミット前に `npm test` と `npm run build` を通す
 - UIはシンプルに、説明テキストは最小限。バイブ（振動）は使わない
-- 課金・広告なし
+- 課金・広告なし（任意の応援だけ）。解析エンジン・評価値は入れない
+- 画面や機能を足すときは、まずリバーシ版・将棋版の同じ画面に合わせる
 
 ## 設計の要点
-- 座標は a〜o / 1〜15（下が1）。1手目は h8 固定
-- 局面は8対称で正規化した文字列がID。定石手の座標は正規形の座標系で保存
-- 黒の禁手（三三・四四・長連）は `src/lib/rules.ts`。禁手を定石手として登録できない
-- 定石データの変更後は `validateBook` がエラーゼロであること（`src/lib/book.test.ts`）
+- ルールは `src/gomoku/core.ts`（15路、1手目は天元、五連、黒の禁手 三三・四四・長連）
+- 盤は `src/ui/Board.tsx`（SVG、仮置き→確定の2タップ、禁手点×、手数表示）
+- 天元からの手順は標準の向き（直接打ち H9・間接打ち I9・珠型の向き）に正規化して記録（`src/gomoku/notation.ts`）
+- 珠型の表は `src/gomoku/openings.ts`。定石書・サイトの文章は写さない
