@@ -45,6 +45,8 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState('')
   const [appSheet, setAppSheet] = useState<{ title: string; items: SheetItem[] } | null>(null)
 
+  const [loadError, setLoadError] = useState('')
+
   useEffect(() => {
     ;(async () => {
       let list = await loadBooks()
@@ -61,7 +63,7 @@ export default function App() {
       }
       setFolders(await loadFolders())
       setBooks(list)
-    })()
+    })().catch((e) => setLoadError((e as Error).message || String(e)))
   }, [])
 
   const toast = useCallback((s: string) => {
@@ -79,7 +81,18 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const stats = useMemo(() => buildStatsIndex(books ?? []), [books, rev])
 
-  if (!books) return <div className="screen center muted">読み込み中…</div>
+  if (!books) {
+    if (loadError) {
+      return (
+        <div className="screen center">
+          <p className="muted">データを読み込めませんでした。</p>
+          <p className="muted">{loadError}</p>
+          <button className="btn" onClick={() => location.reload()}>もう一度読み込む</button>
+        </div>
+      )
+    }
+    return <div className="screen center muted">読み込み中…</div>
+  }
 
   const bookOf = (id: string) => books.find((b) => b.id === id)
   const inFolder = folderId && folders.some((f) => f.id === folderId) ? folderId : undefined

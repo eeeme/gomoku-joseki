@@ -4,8 +4,11 @@ import type { Book, Folder } from './book'
 
 let dbp: Promise<IDBPDatabase> | null = null
 const db = () =>
-  (dbp ??= openDB('gomoku-joseki', 1, {
+  // version 2：1回目の版（同じ名前の DB に 'kv' ストアだけを作っていた）を開いた端末でも、
+  // 必ず upgrade が走って books / folders ができるようにする
+  (dbp ??= openDB('gomoku-joseki', 2, {
     upgrade(d) {
+      if (d.objectStoreNames.contains('kv')) d.deleteObjectStore('kv')
       if (!d.objectStoreNames.contains('books')) d.createObjectStore('books', { keyPath: 'id' })
       if (!d.objectStoreNames.contains('folders')) d.createObjectStore('folders', { keyPath: 'id' })
     },
